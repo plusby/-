@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    vue中Scoped Styles是如何实现样式隔离的，原理是啥？
+    vue中可以给style标签添加scoped来对样式进行隔离，确保当前样式应用于当前组件中；
+    原理：
+      1. vue-loader在处理vue文件的时候，通过postcss来处理样式
+      2. postcss会为模板中的每个元素添加自定义属性，并且是随机的唯一的；
+      3. 并且会给每个样式的选择器添加属性选择器，这样每个样式只应用在对应的dom元素上；这样就可以实现样式的隔离
+
+    比如：
+      <button class="btn" data-v-f3f3eg9>Click Me</button>
+      .btn[data-v-f3f3eg9] {background-color: blue; }
+
+    注意：Scoped css不会阻止全局样式对当前组件的影响；
+    
+    父组件中直接修改子组件的下的元素样式是不生效的？
+    因为postcss会把属性选择器放在子组件下的元素的选择器上，而不是子组件下的选择器，所以可以通过deep深度修改；
+    如果想要修改子组件下的样式可以通过deep等深度修改，因为deep会修改元素上属性选择的位置
+
+    eg：
+      <el-input class="ipt"></el-input>
+
+      .ipt{
+        input{
+            background-color: red;
+        }
+      }
+      不生效的原因
+      .ipt input[data-v-b8cedf19]
+
+      深度修改
+      .ipt{
+        :deep(input){
+            background-color: red;
+        }
+      }
+      实际上需要：
+        .ipt[data-v-b8cedf19] input
+
+  </pre>
+</body>
+</html>

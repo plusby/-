@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="info" onclick="alert(1)" >
+    123
+    <img />
+  </div>
+  <script>
+    // (function () {
+    //   function __canvasWM({
+    //     container = document.body,
+    //     width = '300px',
+    //     height = '200px',
+    //     textAlign = 'center',
+    //     textBaseline = 'middle',
+    //     font = '20px Microsoft Yahei',
+    //     fillStyle = 'rgba(184, 184, 184, 0.6)',
+    //     content = '水印',
+    //     rotate = '45',
+    //     zIndex = 10000 
+    //   } = {}) {
+    //     const args = arguments[0]
+    //     const canvas = document.createElement('canvas')
+    //     canvas.setAttribute('width', width)
+    //     canvas.setAttribute('height', height)
+    //     const ctx = canvas.getContext('2d')
+    //     ctx.textAlign = textAlign
+    //     ctx.textBaseline = textBaseline
+    //     ctx.font = font
+    //     ctx.fillStyle = fillStyle
+    //     ctx.rotate(Math.PI / 180 * rotate)
+    //     ctx.fillText(content, parseFloat(width) / 2, parseFloat(height) / 2)
+
+    //     const base64Url = canvas.toDataURL()
+    //     const __wm = document.querySelector('.__wm')
+    //     const watermarkDiv = __wm  || document.createElement('div')
+
+    //     const styleStr = `
+    //       position:fixed;
+    //       top:0;
+    //       left:0;
+    //       bottom:0;
+    //       right:0;
+    //       width:100%;
+    //       height:100%;
+    //       z-index:${zIndex};
+    //       pointer-events:none;
+    //       background-repeat:repeat;
+    //       background-image:url('${base64Url}')`;
+
+    //     watermarkDiv.setAttribute('style', styleStr);
+    //     watermarkDiv.classList.add('__wm');
+
+    //     if (!__wm) {
+    //       container.insertBefore(watermarkDiv, container.firstChild);
+    //     }
+
+    //     // 通过MutationObserver监听水印是否被改变，改变重新添加水映，防止被取消展示水映
+    //     if (MutationObserver) {
+    //       let mo = new MutationObserver(function () {
+    //         const __wm = document.querySelector('.__wm');
+    //         // 只在__wm元素变动才重新调用 __canvasWM
+    //         if ((__wm && __wm.getAttribute('style') !== styleStr) || !__wm) {
+    //           // 避免一直触发
+    //           mo.disconnect();
+    //           mo = null;
+    //         __canvasWM(JSON.parse(JSON.stringify(args)));
+    //         }
+    //       });
+
+    //       mo.observe(container, {
+    //         attributes: true,
+    //         subtree: true,
+    //         childList: true
+    //       })
+    //     }
+        
+    //   }
+    //   if (typeof module != 'undefined' && module.exports) {  //CMD
+    //       module.exports = __canvasWM;
+    //   } else if (typeof define == 'function' && define.amd) { // AMD
+    //       define(function () {
+    //         return __canvasWM;
+    //       });
+    //   } else {
+    //       window.__canvasWM = __canvasWM;
+    //   }
+    // })()
+
+     // 调用
+    //  __canvasWM({
+    //   content: '水印123'
+    // })  
+
+    /*
+      给图片添加水印
+      1. 创建图片，引入图片
+      2. 图片加载完成之后，通过canvas创建画图
+      3. 通过canvas画出图片
+      4. 给Canvas添加水印文字
+      5. 转成base64显示
+    */
+    (function() {
+      function __picWM({
+        url = '',
+        textAlign = 'center',
+        textBaseline = 'middle',
+        font = "20px Microsoft Yahei",
+        fillStyle = 'rgba(184, 184, 184, 0.8)',
+        content = '水印',
+        cb = null,
+        textX = 100,
+        textY = 30
+      } = {}) {
+        const img = new Image();
+        img.src = url;
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+
+          ctx.drawImage(img, 0, 0);
+          ctx.textAlign = textAlign;
+          ctx.textBaseline = textBaseline;
+          ctx.font = font;
+          ctx.fillStyle = fillStyle;
+          ctx.fillText(content, img.width - textX, img.height - textY);
+
+          const base64Url = canvas.toDataURL();
+          cb && cb(base64Url);
+        }
+      }
+
+    if (typeof module != 'undefined' && module.exports) {  //CMD
+        module.exports = __picWM;
+      } else if (typeof define == 'function' && define.amd) { // AMD
+        define(function () {
+              return __picWM;
+        });
+      } else {
+        window.__picWM = __picWM;
+      }
+          
+    })();
+
+    // 调用
+    __picWM({
+      url: '../img/a.png',
+      content: '水印水印',
+      cb: (base64Url) => {
+        document.querySelector('img').src = base64Url
+      },
+    });
+  </script>
+</body>
+</html>

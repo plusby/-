@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        var startTime = new Date().getTime()
+        var p1 = new Promise((res, rej) => {
+            setTimeout(() => {
+                rej('fail')
+                console.log(new Date().getTime()-startTime)
+            }, 3000)
+        })
+        var p2 = new Promise((res, rej) => {
+            setTimeout(() => {
+                res(p1)
+            }, 1000)
+        })
+        p2.then(res => {
+            console.log(res)
+        }).catch(err => {
+            console.log(err)
+        })
+    </script>
+</body>
+
+</html>

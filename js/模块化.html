@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    /*
+    模块化(Module)：
+        就是一块具有独立功能的代码，可以是一个函数，一个对象，甚至一个字符串和一个数字，存储于
+        一个单独的js文件中
+
+    解决的问题：
+        1. 防止全局变量污染
+        2. 难以管理的依赖关系
+          
+        以上问题导致js无法精细的进行模块化划分，因为划分的精细会造成更多的全局变量污染和更加复杂
+        的依赖关系
+
+    模块化标准有以下几种：
+        1. commonJS
+            1.1 commonJS是node的模块化标准
+            1.2 一个js文件就是一个模块
+            1.3 模块的导出 module.exports = XXX
+            1.4 通过require来引入模块
+            1.5 commonJS是同步引入。引入之后才能使用
+            1.6 模块具有缓存，第一次导入之后就进行缓存，之后导入相同的模块就直接使用缓存中的结果
+
+            原理：
+                node实际上将模块中的代码放在一个函数中运行，可以想象成下面的样子:
+                function(module){
+                    module.exports = {};
+                    let exports = module.exports;
+                    ...模块中的代码
+                    return module.exports
+                }
+                通过requre()导入就会执行这个函数，
+
+            eg:  
+                a.js文件
+                 exports.a = 1
+                 module.exports = {}
+                 exports.b = 2
+
+                b.js文件
+                 const a = require('./a.js')
+                 const b = require('./a.js')
+                 console.log(a)  // {}
+                 console.log(a===b) //true 因为commonJs有缓存
+
+            解析：
+                funtcion(module){
+                    module.exports = {}
+                    let exports = module.exports
+                    exports.a = 1
+                    module.exports = {}
+                    exports.b = 2
+                    return module.exports
+                }
+                因为中途修改了module.exports的值为{}所以返回{}
+
+        2. ES6 Module
+                规范了浏览器中模块化的标准
+
+                1. 浏览器中引入Es6模块文件
+                    <script src="文件" type="module" />
+
+                2. 模块导出两种方式
+                    2.1 基本导出 
+                        export.属性 可以导出多个
+
+                    2.2 默认导出
+                        exports.default，一个模块只能导出一个默认的
+
+                    区别：
+                       1.基本导出可以导出多个，默认导出只能导出一个default
+                       2.基本导出必须要有名字不能直接导出值。默认带出可以没有名字直接导出值，因为默认名字就是Default
+                       3.重命名为default就是默认导出
+
+                    规则：
+                        // 1. export基本导出后直接跟声明的变量或函数
+
+                        export var a = 1 // 基本导出a = 1
+                        export var b = function(){} // 基本导出 b = function(){}
+                        export function c(){} // 基本导出 c = function(){}
+                        // export 4 // 错误不能直接导出值，没有属性名
+
+                        // 2. 基本导出 通过{}导出已经声明好的变量或函数
+
+                        var d = 3
+                        // export d  // 错误导出，因为相当于export 3直接导出值,没有属性名
+                        export { d } // 基本导出 d = 3
+                        export { d as temp } // 基本导出temp = 3
+
+
+                        // 3. 默认导出可以直接导出值或变量名或函数 重命名为default就是默认导出
+                        export default 3 // 默认导出 default = 3
+                        export default function(){} // 默认导出default = function(){}
+                        export { d as default } // 默认导出default = 3
+                        export { a, b, d as default } // 基本导出 a =1, b = funciton(){},默认导出default=3
+
+                3. 模块导入的两种方式
+                    1. 基本导出的必须使用{}包裹导入
+                        
+                    2. 默认导出既可以使用{}包裹也可以直接导入
+
+                    规则：
+                        // 基本导出的必须使用{}包裹
+                        import { a, b } form '路径' //基本导入 a,b
+                        import { a as temp,b } from '路径'  //基本导入a重命名为temp,导入b
+                        import { default as c} from '路径'  // 基本导入default重命名为c 
+                        
+                        // 只有默认导出才能直接导入
+                        import d from '路径'  // 导入默认defalut作为d
+                        import d, { a,b } from '路径' // 导入默认的default作为d,基本导入a,b
+                        import * as a from '路径' // 全部导入作为a
+                        import '路径' //直接导入使用 
+
+                注意：
+                    1. es6 module采用依赖预加载的模式，所有的导入都要要在最顶部
+                    2. 不能讲导入的代码放在判断或者循环中
+                    3. 导入的模块不能更改 import a from ... 不能a =44
+                    4. es6module没有缓存
+
+
+    
+    */    
+    
+        
+    </script>
+</body>
+</html>

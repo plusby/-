@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+            手动实现一个reduce
+           reduce根据上次的值进行计算返回一个结果
+        */
+        Array.prototype.myReduce = function(callBack,initVal){
+            const _self = this
+            if(!Array.isArray(_self) || !_self.length || typeof(callBack) !== 'function'){ // 如果调用它的不是一个数组就直接返回一个空数据
+                return []
+            }
+            let val = initVal !== undefined ? initVal : _self[0]
+
+            for(let i = (initVal !== undefined ? 0 : 1),len = _self.length; i < len;i ++){
+                val = callBack(val,_self[i],i,_self)
+            }
+            return val
+        }
+
+        const arr = [1,2,3]
+        const val = arr.myReduce((lastVal,item)=>{
+            return item + lastVal
+        },1)
+        console.log(val) // 7
+    </script>
+</body>
+</html>

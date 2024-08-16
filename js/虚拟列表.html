@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="scroll-container"></div>
+  <script>
+    window.onload = function () {
+      class VirtualScroll {
+        constructor(container, itemHeight, totalItems, renderItem) {
+          this.container = container;
+          this.itemHeight = itemHeight;
+          this.totalItems = totalItems;
+          this.renderItem = renderItem;
+          this.observer = new IntersectionObserver(this.onIntersection.bind(this), {
+            root: this.container,
+            threshold: 1.0,
+          });
+          this.items = new Map();
+          this.init();
+        }
+        init() {
+          // 填 充 初 始 屏 幕 的 元 素 
+          for ( let i = 0 ; i < this.totalItems; i++ ) { 
+            const placeholder = this.createPlaceholder(i);
+            this.container.appendChild(placeholder);
+            this.observer.observe(placeholder); 
+          }
+        }
+        createPlaceholder(index) {
+          const placeholder = document.createElement("div");
+          placeholder.style.height = `${this.itemHeight}px`;
+          placeholder.style.width = "100%";
+          placeholder.dataset.index = index;
+          return placeholder
+        }
+        onIntersection(entries) {
+            entries.forEach((entry) => {
+              const index = entry.target.dataset.index;
+              if (entry.isIntersecting) {
+                const rendered = this.renderItem(index);
+                this.container.replaceChild(rendered, entry.target);
+                this.items.set(index, rendered);
+              } else if (this.items.has(index)) {
+                const placeholder = this.createPlaceholder(index);
+                this.container.replaceChild(placeholder, this.items.get(index));
+                this.observer.observe(placeholder);
+                this.items.delete(index);
+              }
+            });
+          } 
+      }
+      function renderItem (index) {
+        const item = document.createElement("div"); 
+        item.classList.add("item"); 
+        item.textContent = ` Item ${index}`;  
+        item.dataset.index = index;  
+        item.style.height = "30px"; 
+        return item
+      }
+      const container = document.getElementById('scroll-container')
+      const itemHeight = 30;
+      const itemCount = 1000
+      const virtualScroll = new VirtualScroll(container,itemHeight, itemCount, renderItem)
+    }
+    
+  </script>
+</body>
+
+</html>

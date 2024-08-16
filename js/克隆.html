@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+            克隆
+
+            1. ... 
+                浅度克隆
+            2. JSON.parse(JSON.stringify()) 
+                深度克隆 但是不能对函数和正则就失效，并且new构造函数会得到字符串
+            3. Object.assgin({},目标对象)
+                浅度克隆
+        
+        */
+
+        let obj = {
+            name: '小红',
+            a: {
+                age:12,
+                b:{
+                    work: '工作'
+                },
+                data: new Date()
+            },
+            fn: function(){ console.log(4)}
+        }
+
+        // Object.assign
+        let obj1 = Object.assign({},obj)
+        obj1.a.age = 133
+        // console.log(obj.a.age)  // 133
+        // console.log(obj1.a.age) // 133
+        // console.log(obj)
+        // console.log(obj1)
+
+        // 
+        let obj2 = JSON.parse(JSON.stringify(obj))
+        obj2.a.age = 144
+        console.log(obj.a.age)  // 133
+        console.log(obj2.a.age) // 144
+        console.log(obj.a.data) // Thu Mar 05 2020 11:30:50 GMT+0800 (中国标准时间)
+        console.log(obj2.a.data) // '2020-03-05T03:30:50.716Z' 字符串
+
+        /*
+            实现深拷贝
+            1. typeof判断不是对象和null就是基本类型和函数，直接返回
+            2. for in 遍历源对象，获取对象上的属性
+            3. 判断这个属性是否是自有属性
+            4. 自有属性就通过typoef判断是不是对象
+            5. 不是对象就直接赋值给目标对象的属性
+            6. 是对象，通过toString判断是数组还是对象
+            7. 是数组就给目标对象的当前属性初始一个空数组
+            8. 是对象就给目标对象的当前属性初始一个空对象
+            9. 递归
+        */
+
+        // function deepCopy(origin,target){
+        //     origin = origin || {}
+        //     target = target || {}
+        //     if(typeof origin !== 'object' || origin === null){
+        //         return origin
+        //     }
+
+        //     for(let key in origin){
+        //         if(origin.hasOwnProperty(key)){
+        //             if(typeof origin[key] === 'object'){
+        //                 if(Object.prototype.toString(origin[key]) === '[obejct Array]'){
+        //                     target[key] = []
+        //                 }else{
+        //                     target[key] = {}
+        //                 }
+        //                 deepCopy(origin[key],target[key])
+        //             }else{
+        //                 target[key] = origin[key]
+        //             }
+        //         }
+        //     }
+        //     return target
+        // }
+
+        function deepCopy(origin,target){
+            if(typeof origin !== 'object' || origin === null){
+                return origin
+            }
+            origin = origin || {}
+            target = target || {}
+
+            for (const key in origin) {
+                if (origin.hasOwnProperty(key)) {
+                    const element = origin[key];
+                    if(typeof element === 'object'){
+                        if(Object.toString.call(element) === '[object Array]'){
+                            target[key] = []
+                        }else if(Object.toString.call(element) === '[object Object]'){
+                            target[key] = {}
+                        }
+                        deepCopy(element,target[key])
+                    }else{
+                        target[key] = element
+                    }
+                }
+            }
+            return target
+        }
+
+        let obj3 = {
+            name:'deep',
+            obj:{
+                age:232
+            },
+            arr: [31321,{ sex: 444}],
+            fn: function(){}
+        }
+
+        let obj33 = deepCopy(obj3,{})
+        obj33.obj.age = 'deepAge'
+        console.log(obj3)
+        console.log(obj33)
+
+    </script>
+</body>
+</html>

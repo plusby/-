@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /* 把-变为驼峰形式
+           $Number 获要替换的字符，有()则获取()中匹配的字符
+           \w: 查找单词字符
+           replace(要替换的字符，(g,$1,$2...){})  g当前字符串,$1匹配第一个()中的值，$2匹配第二个()中的值
+        */
+        const str = 'this-first-name'
+        const reg = /-(\w)/g;
+        const str1 = str.replace(reg,(g,$1,$2)=>{
+            console.log($1,$2)
+            // f n变大小
+            return $1.toLocaleUpperCase()
+        })
+        console.log(str1) // thisFirstName
+
+        const str2 = 'this-first%ccc&erwre'
+        const reg2 = /[-(\w)]*[%(\w)]*[&(\w)]*/g;
+        const str3 = str2.replace(reg2,(g,$1,$2,$3)=>{
+            console.log($1,$2,$3)
+           return $1+$2+$3
+        })
+        console.log(str3)
+
+        /*
+            正向预查
+            ?=值
+            查找后面带有这个值的值，修饰作用，不会被返回
+        */
+
+        // 查找a后面带有b的a
+        const reg3 = /a(?=b)/g
+        const str4 = 'abaabaafds'
+        console.log(str4.match(reg3)) // ["a", "a"]
+
+        /*
+            反向预查
+            ?!值
+            查找后面不带有这个值的值，修饰作用，不会被返回
+        */
+
+        /*
+            正则中是采用贪婪匹配，能取多就不会去少，
+            元字符 量词 后面加?表示贪心匹配，能少就不会取多
+        */
+        const str5 = 'abds--aagfdaaa'
+        // 找出连续的1-3个a
+        const reg5 = /a{1,3}?/g
+        console.log(str5.match(reg5)) //["a", "a", "a", "a", "a", "a"] 使用? 能找1个绝对不找3个
+        const reg55 = /a{1,3}/g
+        console.log(str5.match(reg55)) // ["a", "aa", "aaa"] 没有使用?就是贪婪匹配能匹配多就不匹配少
+        const reg555 = /-??/g // 第一个? 表示查找0个或1个 第二个?表示查找0个
+        console.log(str5.match(reg555))  //["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+
+        /*
+            \1匹配第一个()中的值 \2匹配第二个()中的值
+            /(\w)\1*(\w)\2/g
+        */
+        // 找出下面的abed
+        const str6 = 'aaaabbbbedddd'
+        const reg6 = /(\w)\1*/g
+        console.log(str6.replace(reg6,'$1')) //abed
+
+        /*
+            10000000000变为一下格式
+            10.000.000.000
+            
+            解析：
+              1. 从后往前找 $
+              2. 每隔三位数字前面的空格 \d{3}  +匹配多个
+              3. 不能是单词边界 \B
+              4. 使用.替换空格 ?=
+        */
+        const reg7 = /\B(?=(\d{3})+$)/g
+        const str7 = '100000000000'
+        console.log(str7.replace(reg7,'.')) // 100.000.000.000
+
+        /*
+            匹配手机号
+        */
+        const reg8 = /^1[3|8|9|5|4]\d{9}$/g
+        const str8 = '131231312326666'
+        console.log(reg8.test(str8)) // false
+        const str88 = '13123131232'
+        console.log(reg8.test(str88)) // true
+
+        /*
+            匹配邮箱
+        */
+        const reg9 = /(\w|\d)+@(\w)+[.](com|cn)$/g
+        const str9 = 'rew432@qq.com'
+        console.log(reg9.test(str9))
+    </script>
+</body>
+</html>

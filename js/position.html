@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    /*
+        position定位属性
+        1. static: 元素在文档常规流中的当前位置，此时top,left,bottom,right，z-index不生效
+        2. relative： 相对定位，相对于自身的位置进行定位,可设置top,left,bottom,right，z-index
+        3. absolute:  绝对定位，脱离了文档流，相对于具有position，并且值为非static属性的祖先元素进行定位，可以设置外边距，并且和其他元素不重叠 可设置top,left,bottom,right，z-index
+        4. fixed:  浮动定位，相对于具有transform, perspective,或filter的非none属性的祖先元素进行定位， 可设置top,left,bottom,right，z-index
+        5. sticky: 动态定位，元素根据正常的文档流进行定位，但是相对于具有滚动属性的块级祖先元素进行top,left,bottom,right偏移(注意：如果当前元素和具有滚动属性的块级祖先级元素存在top,left,bottom,right间距，并且这个
+                    间距大于当前元素对应的top或者left或者right或bottom的值，那么当前元素位置不动，如果小于，那么当前元素的偏移位置等于它的top或left或right或bottom减去对应的间距)。滚动的时候它会固定到具有滚动属性的祖先元素上,并且进行
+                    top,left,right,bottom偏移 
+
+    */
+    .wrap{
+        width: 400px;
+        height: 400px;
+        margin: 100px;
+        border: 1px solid red;
+        overflow: scroll;
+    }
+    .main{
+        width: 200px;
+        height: 400px;
+        margin: 50px;
+        border: 1px solid yellow;
+    } 
+    /* sticky元素，相对于文档流进行正常定位，然后相对于wrap（具有滚动属性）进行top偏移，但是它的top是10小于main元素的marginTop50，所以还是不动，
+        如果它的top大于main的marginTop，那么就会向下移动，比如sticky2
+    */
+    .sticky{ 
+        width: 100px;
+        height: 20px;
+        border: 1px solid blue;
+        position: sticky;
+        top: 10px;
+        left: 0;
+    }
+
+    /* 相对于 wrap向下移动（100-30)px*/
+    .sticky2{ 
+        width: 100px;
+        height: 20px;
+        border: 1px solid orangered;
+        position: sticky;
+        top: 100px;
+        left: 0;
+    }
+
+</style>
+<body>
+    <div class="wrap">
+        <div class="main">
+            <div class="sticky">sticky</div>
+            <div class="sticky2">sticky2</div>
+        </div>
+    </div>
+</body>
+</html>

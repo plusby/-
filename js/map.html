@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+         map是一种新的存储数据结构的构造函数
+         存储的其实就是键值对，键必须是唯一的，重复的键会被后面的替换掉
+         可以存储任何数据类型
+
+         创建
+           new Map([[key,value],[key,value]])
+
+         方法：
+            set(key,value)  添加数据 只传一个参数，value就是undefined
+            get(key)        获取数据 没有就返回undefined
+            has(key)        判断是否有这个数据
+            delete(key)     删除指定的值
+            clear()         清空
+
+         属性：
+            size()          获取集合的长度
+            
+        */
+
+        /*
+            map的实现
+            原理：
+                1. 桶        一个指定长度的数组用于存储数据
+                2. hash算法  通过key获得一个0到数组长度之前的值，用于获取数据的指定一项
+                3. 链表      一个具有key,value,next的对象，用于在数组的某一层存储多个数据
+                4. Onject.is 查找key，所以只有恒等才能是同一个值
+        */
+         
+        function MyMap(){
+            this.length = 8
+            this.bucket = this.init()
+        }
+
+        // 初始化一个桶
+        MyMap.prototype.init = function (){
+            let arr = new Array(this.length)
+            for(let i = 0; i < this.length; i ++){
+                arr[i] = { // 初始化列表
+                    type: 'bucket'+ i,
+                    next: null
+                }
+            }
+            return arr
+        }
+
+        // hash算法
+        MyMap.prototype.hashVal = function(key) {
+            // key可能是任何类型的值 String number null undefined object function boolean
+            let num = 0
+            if(typeof key !== 'string' ){
+                if(typeof key === 'number'){ // number类型 NaN
+                    num += Object.is(key,NaN) ? 4 : key
+                }else if(typeof key === 'boolean'){ // Boolean
+                    num += key
+                }else if(typeof key === 'null' || typeof key === 'undefined'){ // undefined null
+                    num += 0
+                }else if(typeof key === 'object'){ // object
+                    num += 2
+                }else if(typeof key === 'function'){ // function
+                    num += 3
+                }else{
+                    num += 5
+                }
+            }else{ // string类型 获取前三个字符的charcode
+                for(let i = 0; i < 3; i++){
+                    key[i] ? num +=key[i].charCodeAt() : num +=0
+                }
+            }
+            return num%this.length
+        }
+
+        // set方法
+        MyMap.prototype.set = function(key,value) {
+            // 获取key对应的数据层级
+            const index = this.hashVal(key)
+            let bucket = this.bucket[index]
+            // 如果链有这一项就覆盖否则就创建
+            while(bucket.next){
+                if(Object.is(bucket.next.key,key)){
+                    bucket.next.value = value
+                    return
+                }else{
+                    bucket = bucket.next
+                }
+            }
+            // 没有就创建
+            this.bucket[index].next = {
+                value: value,
+                key: key,
+                next: null
+            }
+            return this.bucket
+        }
+
+        // get
+        MyMap.prototype.get = function(key) {
+            // 获取key对应的数据层级
+            const index = this.hashVal(key)
+            let bucket = this.bucket[index]
+            // 如果链有这一项就覆盖否则就创建
+            while(bucket.next){
+                if(Object.is(bucket.next.key,key)){
+                    return bucket.next.value
+                }else{
+                    bucket = bucket.next
+                }
+            }
+            return undefined
+        }
+
+        let obj = {}
+        const m = new MyMap()
+        m.set('a',1)
+        m.set('a',2)
+        m.set({},2)
+        m.set(obj,66)
+        console.log(m)
+        console.log(m.get('a'))
+        console.log(m.get({}))
+        console.log(m.get(obj))
+    </script>
+</body>
+</html>

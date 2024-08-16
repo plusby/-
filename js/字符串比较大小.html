@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+         1. 字符串和数字比较
+               字符串通过Number()转成数字再进行比较
+        
+         2. 字符串和字符串比较
+               2.1 两端都是字符串数字
+                       通过Number()转成数字进行比较
+                    
+               2.2 一端为字符串一端为字符串数字 或 两端都为字符串 或 一端为字符串一端为字符串布尔值
+                      字符串会从左到右进行比较是否是不同的字符，直到找到不同的字符，然后调用charCodeAt()转换成ASCll码再进行比较
+                   
+          3. 布尔值和其他类型进行比较
+               通过Number()转为数字再比较(NaN不等于任何值并且和任何值比较都是返回false)
+
+               布尔值和数组比较
+                数组转Number，首先数组会通过toString()转成字符串，再通过Number()转成数字
+                
+        */    
+         //1. 字符串和数字比较
+         let str1 = '22'  //Number('22') => 22
+         let num1 = 65
+         console.log( str1 > num1 )  //false
+
+         //2. 字符串和字符串比较
+
+            // 2.1 字符串数字之间的比较
+            let str2 = '21' //Number('21') => 21
+            let str3 = '22' //Number('22') => 22
+            console.log( str2 < str3 ) //true
+
+            // 2.2 一端为字符串一端为字符串数字
+            let str4 = 'a'    //'a'.charCodeAt() => 97
+            let str5 = '888'  //'8'.charCodeAt() => 56
+            console.log( str4 < str5 ) //false
+
+            // 2.3 两端都为字符串
+            let str6 = 'bea'  //'a'.charCodeAt() => 97
+            let str7 = 'bec'  //'c'.charCodeAt() => 99
+            console.log( str6 < str7 ) //true
+
+           // 2.4 一端为字符串一端为字符串布尔值
+           let str8 = 'ab'    //'a'.charCodeAt() => 97
+           let str9 = 'true'  //'t'.charCodeAt() => 116
+           console.log(str8 < str9) //true
+ 
+        // 3. 字符串和布尔值的比较
+        let str10 = 'aa'  //Number('aa') => NaN
+        let str11 = true  //Number(true) => 1
+        console.log(str10 < str11) //false
+        console.log(str10 > str11) //false
+        console.log(str10 == str11) //false
+
+        // 4. 数组转Number，首先数组会通过toString()转成字符串，再通过Number()准成数字
+        let arr1 = ['1','2',"3"]   //['1','2',"3"].toString() => '1,2,3' 再 Number('1,2,3') => NaN
+        console.log(Number(arr1)) //NaN
+ 
+        let arr2 = ['55'] //['55'].toString() => '55' 再 Number('55') => 55
+        let num2= 34
+        console.log(arr2 > num2)  //true
+
+        console.log({} + 'b' > {} + 'a')   //true  '[objet Object]b' > '[object Object]a' => 'b' > 'a' => 'b'.charCodeAt() > 'a'.charCodeAt()
+
+    </script>
+</body>
+</html>

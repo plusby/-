@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+         instanceof
+          检测左侧的对象是否在右侧的原型链上
+          object instanceof constructor
+          右侧一定是函数，不能是对象
+          左侧为基本数据类型就直接返回false
+        */
+        class Father{}
+        class Son extends Father{
+            constructor(){
+                super()
+            }
+        }
+        function g(){}
+        let obj = {}
+        let f = new Father() //f._proto_ => Father.prototype  Father.prototype._proto_ => Object.prototype
+        let s = new Son() //s._proto_ => Son.prototype  Son.prototype._proto_ => Father.prototype  Father.prototype._proto_ => Object.prototype
+        
+        //console.log(s instanceof f) //报错 f不是构造函数
+        //console.log(s instanceof obj) //报错 obj是对象
+        console.log(s instanceof g)  //false
+        console.log(s instanceof Father) //true
+        console.log(null instanceof Father) //false
+
+        function myInstanceOf(a,b){
+            //基本数据类型就直接返回false
+            if(typeof a !== 'object' || a === null){
+                return false
+            }
+            //获取当前a对象的原型
+            let pro = Object.getPrototypeOf(a)
+            while(true){
+                //如果pro是顶峰的null就返回false
+                if(pro === null){
+                    return false
+                }
+                //判断a对象的原型是否和b的原型
+                if(pro === b.prototype){
+                    return true
+                }
+                //没有的话就继续向上找
+                pro = Object.getPrototypeOf(pro)
+            }
+        }
+        console.log(myInstanceOf(s,g) ) //false
+        console.log(myInstanceOf(s,Father) ) //true
+        console.log(myInstanceOf(null,Father)) //false
+        
+    </script>
+</body>
+</html>

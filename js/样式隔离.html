@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    样式隔离⽅式有哪些?
+    样式隔离的目的就为了防止样式之间的相互影响，保持组件的样式私有化；
+    1. css modules
+      Css modules不是一个官方的标准也不是浏览器的特性，而是在构建代码的时候通过构建工具的可以将css modules中的选择器编译成全局唯一的选择器名称，比如
+      通过模块的路径，模块名称，选择器名称加上hash值组成；可以通过:local(选择器名称)来指定是局部选择器；
+      和:global(选择器)指定是全局选择器，默认是局部选择器，所以可以不写local,对于全局选择器来说它不会被
+      编译成唯一的选择器也就是不会做处理；有点：在编译时会转换好，而不是运行时；提高性能
+
+      /* style.css */
+      :global(.card) {
+        padding: 20px;
+      }
+      .article {
+        background-color: #fff;
+      }
+      .title {
+        font-size: 18px;
+      }
+
+      // App.js
+      import React from 'react'
+      import styles from './style.css'
+
+      export default function App() {
+        return (
+          <article className={styles.article}>
+            <h2 className={styles.title}>Hello World</h2>
+            <div className="card">Lorem ipsum dolor sit amet.</div>
+          </article>
+        )
+      }
+
+      被编译成
+      <style>
+        .card {
+          padding: 20px;
+        }
+        .style__article--ht21N {
+          background-color: #fff;
+        }
+        .style__title--3JCJR {
+          font-size: 18px;
+        }
+      </style>
+      
+      <article class="style__article--ht21N">
+        <h2 class="style__title--3JCJR">Hello World</h2>
+        <div class="card">Lorem ipsum dolor sit amet.</div>
+      </article>
+
+
+    2. shadow DOM
+      shadow DOM: 创建影子dom, 它是web的一个标准，可以实现组件化，并且通过shaow DOM包裹的元素不受外部样式的影响，
+      它有自己的元素,样式和js,通过元素的attachShadow来为当前元素创建一个shadow dom,并且返回当前shaow dom的根元素，
+      通过根元素可以操作shadow dom内部的元素样式和js;也有slot插槽和vue中的插槽比较相似，可以扩展组件；
+      缺点：浏览器需要额外的处理shadow dom因此比较消耗性能
+
+    3. CSS-in-JS
+      就是把css样式放在js中，react中的样式就是这样做的，styled-components，Emotion库等；但是有个缺点就是在运行时处理样式，每次渲染
+      都会动态计算样式会影响性能，还需要额外的库来处理，造成最终包的体积变大；一般使用Sass Modules和tailwind库来替代
+      css-in-js
+
+    4. BEM(block-element-modifier)
+      它是css的一种命名规范，命名规范可以防止模块样式的冲突
+
+    5. css scoped
+       vue中可以使用Scoped，在编译的时候给元素的自定义属性和样式选择器都添加唯一的hash值
+  </pre>
+</body>
+</html>

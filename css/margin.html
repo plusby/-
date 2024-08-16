@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    /* 
+     1. 两个元素垂直方向上的margin都为正就取最大的一个值
+     2. 一正一负，两数相加取结果
+     3. 都为负数，取绝对值最大的值
+
+     margin-bottom:取负值，自身不动，下面的元素会向上移动负值的距离
+     margin-top: 取负值，自身向上移动负值的距离
+
+     谁移动到谁的上面，谁的层级就高，但是他的背景会被未移动元素的内容覆盖，他的内容会覆盖未移动的内容
+     两个block元素重叠时，后面元素可以覆盖前面元素的背景，但无法覆盖其内容
+     当两个inline元素，或两个line-block元素，或inline与inline-block元素重叠时，后面元素可以覆盖前面元素的背景和内容
+     当inline元素与block元素重叠时，inline的元素覆盖block元素的背景和内容
+     当inline-block元素与block元素重叠时，inline-block元素覆盖block元素的背景，但无法覆盖其内容
+
+    */
+   .a,.b,.c,.d,.e,.f{
+        width: 100px;
+        height: 100px;
+        color: #fff;
+   }
+   .c{
+       background: aqua;
+   }
+   /* 一正一负，两数相加取结果 -30 + 10 = -20;b元素向上移动20px,
+      b元素的背景覆盖了a元素，但是a元素的内容在b元素的背景上面，但是
+      b元素的内容在a元素的上面
+   */
+   .a{
+       background: #000;
+       margin-bottom: -30px;
+       margin-left: 5px;
+   }
+   .b{
+       background: red;
+       margin-top: 10px;
+       margin-left: 10px;
+       color: aqua;
+       padding: 4px;
+   }
+   img{
+       display: block;
+       width: 90%;
+       height: 90%;
+   }
+
+   .d{
+       background: blueviolet;
+       margin-left: 50px;
+       margin-bottom: -30px;
+   }
+   /* e元素取负值，自身不动，下面的f元素向上移动20px */
+   .e{
+       background: brown;
+       margin-left: 100px;
+       margin-top: -30px;
+       margin-bottom: -20px;
+   }
+   .f{
+       background: cadetblue;
+   }
+   /* 行内块级元素设置上下外边距的问题 */
+   .box{
+        width: 200px;
+        height: 200px;
+        position:absolute;
+        top: 10px;
+        left: 200px;
+        border: 1px solid red;
+        font-size: 0;
+   }
+   .box .b2,.box .b3,.box .b4,.box .b5{
+       width: 100px;
+       height: 100px;
+       display: inline-block;
+       font-size: 12px;
+       /* vertical-align: baseline;会影响行内块级元素的margin设置，设置为其他值就不会影响 */
+       vertical-align: baseline; 
+   }
+   .box .b2{
+       background: chocolate;
+       margin-bottom: -20px;  
+   }
+   .box .b4{
+       background: rgb(30, 210, 69);
+       margin-top: 10px;
+   }
+   .box .b3{
+       background: rgb(30, 138, 210);
+   }
+   .box .b5{
+       background: rgb(180, 30, 210);
+   }
+   /* 浮动元素的margin问题 浮动元素的margin都是按照规则正常处理 */
+   .box2{
+        width: 200px;
+        height: 200px;
+        position:absolute;
+        top: 10px;
+        left: 450px;
+        border: 1px solid black;
+        font-size: 0;
+   }
+   .box2 .a2,.box2 .a3,.box2 .a4,.box2 .a5{
+       width: 100px;
+       height: 100px;
+       display: block;
+       font-size: 12px;
+       float: left;
+   }
+   .box2 .a2{
+       background: chocolate;
+       margin-bottom: -20px;  
+   }
+   .box2 .a4{
+       background: rgb(30, 210, 69);
+       margin-top: 10px;
+   }
+   .box2 .a3{
+       background: rgb(30, 138, 210);
+       
+   }
+   .box2 .a5{
+       background: rgb(180, 30, 210);
+       margin-top: -10px;
+   }
+</style>
+<body>
+    <div class="c"></div>
+    <!--  -->
+    <div class="a">
+        <img src="https://oimagec4.ydstatic.com/image?id=-2877749759370302201&product=adpublish&w=520&h=347" alt="">
+    </div>
+    <div class="b">
+        <img src="http://cdn2.jianshu.io/assets/default_avatar/2-9636b13945b9ccf345bc98d0d81074eb.jpg" alt="">
+    </div>
+    <!-- margin-bottom取负值 自身不移动 -->
+    <div class="d">d</div>
+    <!-- margin-top取负值，自身向上移动 -->
+    <div class="e">e</div>
+    <div class="f">f</div>
+
+    <!-- 行内块级元素设置上下外边距的问题 -->
+    <div class="box">
+        <div class="b2">2</div>
+        <div class="b3">3</div>
+        <div class="b4">4</div>
+        <div class="b5">5</div>
+    </div>
+    <!-- 浮动元素的上下边距问题 -->
+    <div class="box2">
+        <div class="a2">2</div>
+        <div class="a3">3</div>
+        <div class="a4">4</div>
+        <div class="a5">5</div>
+    </div>    
+</body>
+</html>

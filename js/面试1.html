@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+
+    <script>
+        /*
+         1.我们能否以某种方式为下面的语句使用展开运算而不导致类型错误
+         var obj = { x: 1, y: 2, z: 3 };
+         [...obj];
+         解决： 使这个对象具有迭代协议
+               
+                展开语法 和 for-of 语句遍历对象，这个对象内部必须具有迭代接口
+
+                如果一个对象实现了@@iterator方法，那么它就是可迭代的，这意味着
+                这个对象(或者它原型链上的一个对象)必须有一个带有@@iterator键的
+                属性，这个键可以通过常量Symbol.iterator获得。
+
+                实现@@iterator方法的要求：
+                    返回一个 iterator 对象
+                    iterator 是一个具有 next 方法的对象，
+                    它的返回至少有一个对象
+                    两个属性：value＆done。
+                    
+                
+        */
+        var obj = { x: 1, y: 2, z: 3 };
+        //方法 1
+        obj['length'] = Object.keys(obj).length
+        obj[Symbol.iterator] = function(){
+            let index = 0
+            let keys = Object.keys(this)
+            return {
+                next:()=>{
+                    return {
+                        value: this[keys[index]],
+                        done: ++index == keys.length 
+                    }
+                }
+            } 
+        }
+
+        //方法 2
+        // obj[Symbol.iterator] = function* (){
+        //     let keys = Object.keys(this)
+        //     let index = 0
+        //    while(index != keys.length){
+        //        yield this[keys[index]]
+        //        ++index
+        //    }
+        // }
+        console.log([...obj])
+
+        /*
+          2.   运行以下代码片段时，控制台上会打印什么？
+                var obj = { a: 1, b: 2 };
+                Object.setPrototypeOf(obj, {c: 3});
+                Object.defineProperty(obj, 'd', { value: 4, enumerable: false });
+
+                // what properties will be printed when we run the for-in loop?
+                for(let prop in obj) {
+                    console.log(prop); 
+                } 
+
+
+        */
+
+                var obj = { a: 1, b: 2 };
+                Object.setPrototypeOf(obj, {c: 3});
+                Object.defineProperty(obj, 'd', { value: 4, enumerable: false });
+
+                for(let prop in obj) { //for in只能遍历可枚举的属性
+                    console.log(prop);  //a,b,c
+                }    
+                
+        /*
+          3.  如果我们在浏览器控制台中运行'foo'函数，是否会导致堆栈溢出错误？
+
+                function foo() {
+                  setTimeout(foo, 0); // 是否存在堆栈溢出错误?
+                };    
+                foo()
+            解答：
+                不会
+                原因：1. foo()会在执行栈中进行执行
+                     2. foo内部执行发现有setTimeout,此时就会把setTimeout的回调函数foo推入任务队列中
+                     3. foo内部执行完毕，执行栈为空
+                     4. 执行栈为空的时候，事件循环机制会把任务队列中最后一个任务foo推入到执行栈中，
+                     5. 然后再次重复执行上面的步骤，堆栈不会溢出
+
+                事件循环(Event loop)不断地监视任务队列(Task Queue)，并按它们排队的顺序一次处理一个回调。
+                每当调用堆栈(call stack)为空时，Event loop获取回调并将其放入堆栈(stack )(箭头3)中进行处理。
+                请记住，如果调用堆栈不是空的，则事件循环不会将任何回调推入堆栈。
+        */
+
+         /*
+           6.   如果在控制台中运行以下函数，页面(选项卡)的 UI 是否仍然响应
+
+                function foo() {
+                    return Promise.resolve().then(foo);
+                };  
+                foo()
+            解答：
+                 会
+                 原因： promise是微任务，在事件循环机制中微任务总是先执行，宏任务就是排队等候，
+                       1. foo()执行放在执行栈中
+                       2. 执行中发现返回promise微任务，把promise中的回调foo放入任务队列中，
+                       3. foo()执行完毕，执行栈为空
+                       4. 任务队列中的微任务再次进入执行栈执行，因此事件循环无法处理其他事件，所以导致阻塞
+                
+         */
+
+    </script>
+</body>
+</html>

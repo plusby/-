@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .scroll{
+      width: 80px;
+      height: 200px;
+      overflow: scroll;
+      position: relative;
+    }
+    p{
+      height: 40px;
+    }
+    .p11{
+      border: 3px;
+      padding: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    scrollTop,scrollLeft和scrollY,scrollX和pageYOffset,pageXoffset的区别？
+      1. scrollY和scrollX是属于window上的属性，用来获取window窗口滚动的距离；
+      2. pageYOffset,pageXoffset等于scrollY和scrollX
+      3. scrollTop和scrollLeft是属于元素上的属性，用来获取元素滚动的距离；
+      4. 如果获取body的滚动距离的时候，那么window.scrollY = document.body.scrollTop
+
+    鼠标的点击事件中的clientX,clientY,pageX,pageY,screenX和screenY,offsetX,offsetY的区别？
+      1. clinetX和clientY表示点击点到浏览器左边和顶部的距离
+      2. screenX和screenY表示点击点到设备屏幕左边或顶部的距离
+      3. pageX和pageY表示点击点到body左边或顶部的距离
+      4. offsetX和offsetY表示点击点到上层具有定位元素的左边或顶部的距离
+
+    clientTop,clientLeft和offsetTop,offsetLeft的区别？
+      1. clientTop,clientLeft表示当前元素到父级元素顶部或左侧的距离，不包含边框和外边距；
+      2. offsetTop,offsetLeft表示元素到上层具有定位元素的左边或顶部的距离
+
+    getBoundingClientRect获取元素当可视区域的距离
+
+    clientWidth,clientHeight和screen.width,scrollWidth,scrollHeight,offsetWidth,offsetHeight,innerWidth,innerHeight的区别
+      1. clientWidth和clientHeight表示可见区域的宽高，不包括滚动条的宽度;clientWidth = width+左右padding
+      2. screen.width和screen.height表示屏幕的宽高
+      3. scrollWidth,scrollHeight表示整个元素的宽高包括滚动的部分。但不包括边框和外边距，但是包含伪元素的宽高
+      4. offsetWidth,offsetHeight表示整个元素可见区域的宽高，包括滚动条的宽度(一个元素的宽度)  width + 左右padding + 左右boder
+      5. innerWidth,innerHeight属于window上的属性，获取可视区域的宽高
+      <div class="scroll">
+        <div class="sc">
+          <p>1213232131232131232312321</p>
+          <p>2</p>
+          <p>3</p>
+          <p>4</p>
+          <p>5</p>
+          <p>6</p>
+          <p class="p11">11</p>
+          <p>7</p>
+          <p>8</p>
+          <p>9</p>
+          <p>10</p>
+        </div>
+      </div>
+  </div>
+  <script>
+    window.onload = function () {
+      const p11 = document.getElementsByClassName('p11')[0]
+      const scroll = document.getElementsByClassName('scroll')[0]
+      const sc = document.getElementsByClassName('sc')[0]
+      
+      console.log('clientWidth', sc.clientWidth) // 33
+      console.log('screenHeight', screen.width) //  1366
+      console.log('scrollWidth', sc.scrollWidth) // 235 整个内容的宽度包含隐藏的滚动部分
+      console.log('offsetWidth', sc.offsetWidth) // 33
+      console.log('scroll offsetWidth', scroll.offsetWidth) // 50 包含滚动条
+      console.log('scroll clientWidth', scroll.clientWidth) // 33
+      scroll.addEventListener('scroll', () => {
+        console.log('clientTop', p11.clientTop) // 
+        console.log('offsetTop', p11.offsetTop) // 576
+        console.log('screen clientTop', p11.screen) // 576
+        console.log('scrollTop', scroll.scrollTop)
+        const rect = p11.getBoundingClientRect()
+        console.log('rect Top', rect.top) 
+        // 如果当前元素距离滚动元素的高度小于了滚动的高度加上滚动元素的高度
+        if (p11.offsetTop < scroll.scrollTop + scroll.clientHeight) {
+          console.log('p11出现在可视区域了' )
+        }
+      })
+    }
+  </script>
+</body>
+</html>

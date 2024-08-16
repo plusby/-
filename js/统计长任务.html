@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    /*
+     * 如何统计长任务执行的时间和长任务执行的次数？
+      通过PerformanceObserver来监听长任务，在回调函数中进行统计
+    */
+    // 统计长任务的数量
+    let num = 0
+    let time = 0
+    const observe = new PerformanceObserver((list) => {
+      list.getEntries().forEach(item => {
+        // 统计数量
+        num++
+        // 统计时间
+        time += item.duration
+      })
+    })
+    // 观察长任务
+    observe.observe({ entryTypes: ["longtask"]})
+  </script>
+</body>
+</html>

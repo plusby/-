@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+    <script>
+       var storage = {
+           //存储的时候把要设置过期的时间存储进去
+            set: function(item,key,time){
+                if(!localStorage){
+                    return null
+                }
+                let val = {
+                    data: item,
+                    timer: time ? time : null 
+                }
+               
+                localStorage.setItem(key,JSON.stringify(val))
+            },
+            //获取之前先判断是否过期，过期就删除
+            get: function(key){
+                if(!localStorage){
+                    return null
+                }
+                let val = localStorage.getItem(key)
+                let data = val && JSON.parse(val)
+                let now = new Date().getTime()
+                if(data.timer){
+                    if(now > data.timer){
+                        localStorage.removeItem(key)
+                        return ''
+                    }
+                }
+                return val
+            }
+       }    
+        
+       storage.set('haha','time',new Date().getTime() + 2*60*1000)
+       //定时处理
+       setTimeout(()=>{
+            storage.get('time')
+       },10*60*1000)
+        
+    </script>
+</body>
+</html>

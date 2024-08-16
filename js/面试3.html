@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //1. async函数返回的是promise对象
+        async function async1() {
+            console.log(1);
+            const result = await async2(); //返回promise
+            console.log(3,result);
+        }
+
+        async function async2() {
+            console.log(2);
+        }
+
+        Promise.resolve().then(() => {
+            console.log(4);
+        });
+
+        setTimeout(() => {
+            console.log(5);
+        });
+
+        async1();  
+        console.log(6);
+        /*
+          输出:
+              1 2 6 4 3 5
+              
+        */
+
+
+        //2. 
+        let a = {a: 10};
+        let b = {b: 10};
+        let obj = {
+          a: 10
+        };
+        obj[b] = 20;
+        console.log(obj[a]);
+        /*
+          输出: 20
+            obj[b] => obj[{b:10}] => obj['object Objecct'] = 20
+            obj[a] => obj[{a:10}] => obj['object Objecct'] => 20
+        */
+
+        //3. 如何把下面的执行结果改为10
+        var a = 10;
+        var obj = {
+            a: 20,
+            say: function () {
+                console.log(this.a);
+            }
+        };
+        obj.say();  //20
+        // 3.1 箭头函数
+        var a = 10;
+        var obj = {
+            a: 20,
+            say: () => {
+                console.log(this.a);
+            }
+        };
+        obj.say(); //10
+
+        //3.2 使用call或者bind改变this指向
+        var a = 10;
+        var obj = {
+            a: 20,
+            say: function () {
+                console.log(this.a);
+            }
+        };
+        obj.say.call(this) 
+        obj.say.bind(this)
+
+        //3.3 直接把函数赋值出来
+        var a = 10;
+        var obj = {
+            a: 20,
+            say: function () {
+                console.log(this.a);
+            }
+        };
+        let newSay = obj.say
+        newSay()
+        
+
+
+
+
+    </script>
+</body>
+</html>

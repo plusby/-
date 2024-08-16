@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function showHint(callBack)
+        {
+            var xmlhttp;
+            if (window.XMLHttpRequest)
+            {// code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState==4 && xmlhttp.status==200)
+                {
+                   callBack && callBack(xmlhttp.responseText)
+                }
+            }
+            xmlhttp.open("GET",`https://www.baidu.com/sugrec?prod=pc_his&from=pc_web&json=
+                                   1&sid=30749_1426_21092_30824_26350_22158&hisdata=%5B%7B%
+                                   22time%22%3A1582191162%2C%22kw%22%3A%22vue%20watch%22%7D%
+                                   2C%7B%22time%22%3A1582191942%2C%22kw%22%3A%22scalez%22%7D
+                                   %2C%7B%22time%22%3A1582192615%2C%22kw%22%3A%22vue%20%E5%8
+                                   A%A8%E7%94%BB%22%7D%2C%7B%22time%22%3A1582206517%2C%22kw%
+                                   22%3A%22ajax%E5%B1%9E%E4%BA%8E%E5%AE%8F%E4%BB%BB%E5%8A%A1
+                                   %E8%BF%98%E6%98%AF%E5%BE%AE%E4%BB%BB%E5%8A%A1%22%2C%22fq%
+                                   22%3A2%7D%2C%7B%22time%22%3A1582206943%2C%22kw%22%3A%22%E
+                                   8%82%8C%E8%82%89%E7%94%B7%22%2C%22fq%22%3A2%7D%2C%7B%22t
+                                   ime%22%3A1582207084%2C%22kw%22%3A%22%E8%82%8C%E8%82%89%E
+                                   5%B8%85%E5%93%A5%22%2C%22fq%22%3A2%7D%2C%7B%22time%22%3A
+                                   1582207093%2C%22kw%22%3A%22%E8%82%8C%E8%82%89%E8%BA%AB%
+                                   E6%9D%90%22%7D%2C%7B%22time%22%3A1582207299%2C%22kw%22%
+                                   3A%22%E8%82%8C%E8%82%89%E5%8D%81%E4%B8%AA%E7%AD%89%E7%B
+                                   A%A7%E5%88%92%E5%88%86%E5%9B%BE%22%7D%2C%7B%22time%22%3
+                                   A1582207306%2C%22kw%22%3A%221%EF%BD%9E10%E5%88%86%E8%82
+                                   %8C%E8%82%89%E7%94%B7%22%7D%2C%7B%22time%22%3A158220765
+                                   9%2C%22kw%22%3A%22ajax%22%7D%5D&req=2&bs=1&csor=0`,true);
+            xmlhttp.send();
+        }
+        // 通过结果可以看出ajax本身是同步的，它的回调函数是异步的
+        // 并且是宏任务
+        function sned(){
+            console.log(1)
+            Promise.resolve().then(()=>{
+                console.log(2)
+            })
+            showHint(()=>{ // ajax 请求
+                console.log(3)
+            })
+            Promise.resolve().then(()=>{
+                console.log(4)
+            })
+            for(let i = 0; i < 10000; i++){
+                Promise.resolve().then(()=>{
+                    console.log(4)
+                    if(i === 0){
+                        showHint(()=>{ // ajax 请求
+                            console.log(7777)
+                        })
+                    }
+                    if(i > 9000){
+                        Promise.resolve().then(()=>{
+                            console.log(222)
+                        })
+                    }
+                })
+            }
+            setTimeout(()=>{
+                console.log(5)
+            },0)
+            setTimeout(()=>{
+                console.log(6)
+            },3000)
+        }
+        sned() // 1 2 4 1万个4 999个222 3 5 6  7777
+    </script>
+</body>
+</html>

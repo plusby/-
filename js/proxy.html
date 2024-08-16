@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    /*
+      可撤销的Proxy
+      proxy 有一个唯一的静态方法，Proxy.revocable(target,handler)
+      Proxy.revocable()方法可以用来创建一个可撤销的代理对象
+
+      该方法的返回值是一个对象，其结构为： {"proxy": proxy, "revoke": revoke}
+
+      proxy 表示新生成的代理对象本身，和用一般方式 new Proxy(target, handler) 创建的代理对象没什么不同，只是它可以被撤销掉。
+
+      revoke 撤销方法，调用的时候不需要加任何参数，就可以撤销掉和它一起生成的那个代理对象。
+
+    */ 
+    const target = { name: 'vuejs'}
+    const {proxy, revoke} = Proxy.revocable(target, handler)
+    proxy.name // 正常取值输出 vuejs
+    revoke() // 取值完成对proxy进行封闭，撤消代理
+    proxy.name // TypeError: Revoked
+
+  </script>
+</body>
+</html>

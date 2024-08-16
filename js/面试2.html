@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+ p{
+     width: 60px;
+     height: 60px;
+ }
+ /* 
+ 4.	请写一个表格以及对应的 CSS，使表格奇数行为白色背景，偶数行为灰色背景，鼠标移 上去时为黄色背景
+  */
+ table tr:nth-of-type(odd){
+     background: #fff;
+ }
+ table tr:nth-of-type(even){
+     background: #ccc;
+ }
+ table tr:hover{
+     background: yellow;
+ }
+</style>
+<body>
+    <p></p>
+
+    <table>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+        </tr>
+    </table>
+
+    <script>
+        // 3.	写一个 traverse 函数，输出所有页面宽度和高度大于 50 像素的节点。
+        function traverse(){
+            let all;
+            let arr = [];
+            if(document.all){
+                all = document.all
+            }else{
+                all = document.getElementsByTagName('*')
+            }
+            for(let i = 0, len = all.length; i < len; i++){
+                let item = all[i]
+                let w = parseFloat(item.style.width) || item.offsetWidth 
+                let h = parseFloat(item.style.height)  || item.offsetHeight
+                if(w > 50 && h > 50){
+                    arr.push(item.tagName)
+                }
+            }
+            console.log(arr)
+            return arr
+        }
+
+        window.onload = function(){
+            traverse()
+        }
+
+        /*
+        5.	写一个求和的函数 sum，达到下面的效果  
+        // Should equal 15 sum(1, 2, 3, 4, 5); 
+        // Should equal 0 sum(5, null, -5); 
+        // Should equal 10 sum('1.0', false, 1, true, 1, 'A', 1, 'B', 1, 'C', 1, 'D', 1, 'E', 1, 'F', 1, 'G', 1); 
+        // Should equal 0.3, not 0.30000000000000004 sum(0.1, 0.2);
+        */
+        function sum(){
+            let count = 0;
+            for(let i = 0, len = arguments.length; i < len; i++){
+                let item = arguments[i]
+                let num = parseFloat(item)
+                num ? num : num = 0
+                count += num
+            }
+            return parseFloat(count).toFixed(3)*1000/1000
+        }
+        
+        console.log(sum(1, 2, 3, 4, 5))
+        console.log(sum(5, null, -5))
+        console.log(sum('1.0', false, 1, true, 1, 'A', 1, 'B', 1, 'C', 1, 'D', 1, 'E', 1, 'F', 1, 'G', 1))
+        console.log(sum(0.1, 0.2))
+
+        /*
+        9.	请编写一个 JavaScript 函数 parseQueryString，它的用途是把 URL参数解析为一个对象， 如：  
+            var url = “http://www.taobao.com/index.php?key0=0&key1=1&key2=2.....” 
+            var obj = parseQueryString(url); 
+            alert(obj.key0)  // 输出 0
+        */
+       function parseQueryString(urls){
+            if(!urls.includes('?')){
+                return
+            }
+            let params = urls.split('?')[1].split('&')
+            let obj = {}
+            params.forEach(element => {
+                let item = element.split('=')
+                obj[item[0]] = item[1]
+            });
+            return obj
+       }
+       var url = "http://www.taobao.com/index.php?key0=0&key1=1&key2=2"
+       console.log(parseQueryString(url))
+        
+        
+    </script>
+</body>
+</html>

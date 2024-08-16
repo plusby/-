@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+            1. 实现如下需求
+            let n = 10;
+            let m = n.plus(10).minus(5);
+            console.log(m);//=>15（10+10-5）
+        */
+        Number.prototype.plus = function(arg){
+            let arr = Array.prototype.slice.call(arguments,0)
+            let _self = this
+            let count = _self.valueOf()
+            arr.forEach(item=>{
+                count += item
+            })
+            console.log(count)
+            return count
+        }
+        Number.prototype.minus = function(){
+            let arr = Array.prototype.slice.call(arguments,0)
+            let _self = this
+            let count = _self.valueOf()
+            arr.forEach(item=>{
+                count -= item
+            })
+            return count
+        }
+        let n = 10;
+        let m = n.plus(10).minus(5);
+        console.log(m);//=>15（10+10-5）
+
+        /*
+            2. 实现如下需求
+            let url="http://www.zhufengpeixun.cn/?lx=1&from=wx#video";
+            console.log(url.queryURLParams("from")); //=>"wx"
+            console.log(url.queryURLParams("_HASH")); //=>"video"
+        */
+
+        function queryURLParams(url,name){
+            if(!url){
+                return {}
+            }
+            let params = url.split('?')[1]
+            let paramsObj = {}
+            if(params){
+                const arr = params.split('&')
+                arr.forEach(item=>{
+                    let obj = item.split('=')
+                    let val = obj[1]
+                    if( val && val.includes('#')){
+                        let hashArr = val.split('#')
+                        paramsObj[obj[0]] = hashArr[0]
+                        paramsObj['#'] = hashArr[1]
+                    }else{
+                        paramsObj[obj[0]] = obj[1]
+                    }
+                })
+            }
+            if(name){
+                if(name === '_HASH'){
+                    return paramsObj['#']
+                }else{
+                    return paramsObj[name]
+                }
+            }else{
+                return paramsObj
+            }
+        }
+        let url="http://www.zhufengpeixun.cn/?lx=1&from=wx#video";
+        console.log(queryURLParams(url,"from")); //=>"wx"
+        console.log(queryURLParams(url,"_HASH")); //=>"video"
+
+        /*
+            3. 基于ES6中的class重构下面的代码
+            function Modal(x,y){
+                this.x=x;
+                this.y=y;
+            }
+            Modal.prototype.z=10;
+            Modal.prototype.getX=function(){
+                console.log(this.x);
+            }
+            Modal.prototype.getY=function(){
+                console.log(this.y);
+            }
+            Modal.n=200;
+            Modal.setNumber=function(n){
+                this.n=n;
+            };
+            let m = new Model(10,20);
+
+        */
+        class Modal{
+            constructor(x,y){
+                
+                this.x = x
+                this.y = y
+            }
+            getX(){
+                console.log(this.x);
+            }
+            getY(){
+                console.log(this.y);
+            }
+            setNumber = function(n){
+                this.n=n;
+            }
+            z = 10
+            static n = 200
+        }
+        /*
+            总结:
+            1. class中的私有方法在原型上
+            2. class中私有属性在this上
+            3. class中静态属性在构造函数上
+            4. 私有方法用=号或者箭头函数都是放在this上
+        */
+    </script>
+</body>
+</html>

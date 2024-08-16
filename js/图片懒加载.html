@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    常见的图片懒加载的方式？
+    1. 通过IntersectionObserver的API来实现，它可以异步检查页面中的元素是否出现在可视区域；
+      - 通过IntersectionObserver的实例监听每张图片
+      - 如果当前图片出现在可视区域就把当前图片的datasrc的值赋值给当前图片的src进行展示；
+
+    2. 自定义监听滚动条
+      1. 监听窗口的滚动
+      2. 滚动回调中通过懒加载的类获取到所有的懒加载的图片，
+      3. 遍历每张图片，判断图片距离body的高度是否小于了当前可视区域的高度加上滚动的高度
+        如果小于表示出现在可视区域，直接把datasrc赋值给src,并且删除当前图片上的懒加载的类，
+        防止重复设置；
+      4. 整个过程需要节流，防止频繁滚动处理
+
+  </div>
+  <img data-src="./a.png" src="./d.png" alt="">
+  <img data-src="./b.png" src="./d.png" alt="">
+  <img data-src="./c.png" src="./d.png" alt="">
+  <script>
+    /*
+      1. 创建IntersectionObserver实例
+      2. 通过实例的observe监听图片元素
+      3. 在构造函数中判断监听的元素的isIntersecting属性来判断是否出现在视口中。
+      4. 如果出现就把当前元素的datasrc的值赋值给src
+    */
+    // 创建实例
+    const observe = new IntersectionObserver((entries) => {
+      // 遍历监听的元素
+      entries.forEach(item => {
+        // 判断元素是否进入可视区域
+        if (item.isIntersecting) {
+          const img = item.target
+          img.src = img.dataset.src
+          // 取消监听当前元素
+          observe.unobserve(img)
+        }
+      })
+    })
+    // 获取到页面上的图片，监听每个图片
+    const imgArr = document.querySelectorAll('img')
+    imgArr.forEach(img => {
+      observe.observe(img)
+    })
+
+    /*
+      自定义滚动
+      1. 监听窗口的滚动
+      2. 滚动回调中通过懒加载的类获取到所有的懒加载的图片，
+      3. 遍历每张图片，判断图片距离body的高度是否小于了当前可视区域的高度加上滚动的高度
+         如果小于表示出现在可视区域，直接把datasrc赋值给src,并且删除当前图片上的懒加载的类，
+         防止重复设置；
+      4. 整个过程需要节流，防止频繁滚动处理
+    */
+   let timer = null
+   document.addEventListener('scroll', () => {
+    // 防止频繁滚动加载图片。在停止滚动的时候再去懒加载图片
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      const imgArr2 = document.querySelectorAll('.lazy') 
+      imgArr2.forEach(img => {
+        // 如果当前滚动的高度加上可视区域的高度大于了图片距离body的高度，那么就显示 这是对于页面的高度等于浏览器的高度
+        // 如果在某个元素中图片滚动出现在元素中的时候就要使用到给滚动的元素设置定位，通过offsetTop获取到图片到滚动元素的高度来和滚动元素滚动的距离加上滚动元素的高度
+        // 来判断图片是否出现在元素的可视区域
+        if (img.offsetTop < window.innerHeight + window.scrollY) {
+          img.src = img.dataset.src
+          // 删除懒加载的类
+          img.classList.remove('lazy')
+        }
+      }) 
+    },200)
+   })
+
+  </script>
+</body>
+</html>

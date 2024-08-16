@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+         Object.is(a,b)
+         判断a和b是否恒等，解决了===恒等的一些特殊情况
+         +0 === -0 //true
+         Object.is(+0，-0) //false
+
+        */
+        console.log(+0 === -0) //true
+        console.log(+0 === 0)  //true
+        console.log(-0 === 0)  // true
+        console.log(NaN === NaN) //false
+        console.log(1/+0 === 1/-0) //false
+        console.log(1/0 === 1/0) //true
+        console.log(1/+0 === 1/0) //true
+
+        console.log(Object.is(+0,-0)) //false
+        console.log(Object.is(+0,0)) //true
+        console.log(Object.is(-0,0)) //false
+        console.log(Object.is(NaN,NaN)) //true
+
+        function is(a,b){
+            if(a === b){
+                //运行到1/x === 1/y的时候x和y都为0，但是1/+0 = +Infinity， 1/-0 = -Infinity, 是不一样的
+                return a !== 0 || b !== 0 || 1/a === 1/b;
+            }else{
+                //NaN===NaN是false,这是不对的，我们在这里做一个拦截，x !== x，那么一定是 NaN, y 同理
+                //两个都是NaN的时候返回true
+                return a !== a &&  b !== b;
+            }
+        }
+        console.log('-------------')
+        console.log(is(+0,-0)) //false
+        console.log(is(+0,0)) //true
+        console.log(is(-0,0)) //false
+        console.log(is(1/+0,1/0)) //true
+        console.log(is(1/+0,1/-0)) //false
+    </script>
+</body>
+</html>

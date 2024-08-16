@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+          for循环中使用await会阻止for循环的遍历，使得每次遍历都是等到await异步执行之后才遍历下一次
+        */
+       async function a(){
+           for(let i = 0;i < 5; i++){
+              console.log('前')
+              await p(i).then((n)=>{
+                  console.log(n)
+              })
+              console.log('后')
+           }
+       }   
+       function p(n){
+           return new Promise((res,rej)=>{
+                setTimeout(()=>{
+                    res(n)
+                },3000)
+           })
+       }
+       //a() //前 0 后 前 1 后 前 3 后 前 3 后 前 4 后 
+
+       async function aa(){
+           for(let i = 0;i < 5; i++){
+              console.log('前')
+              await p(i).then((n)=>{
+                  console.log(n)
+              })
+              console.log('后')
+           }
+       } 
+       function pp(n){
+            return new Promise((res,rej)=>{
+                res(n)
+            })
+       }
+       //aa() //前 0 后 前 1 后 前 3 后 前 3 后 前 4 后 
+
+       async function async1(){
+            console.log(1)
+            const result = await async2()
+            console.log(result)
+            console.log(3)
+            const result2 = await async3()
+            console.log(result2)
+            const result3 = await async4()
+            console.log(result3)
+            console.log(66)
+       }
+
+       async function async2(){
+            console.log(2)
+            // 默认返回undefined
+       }
+
+       async function async3(){
+            return 44
+       }
+
+       function async4(){
+            return 55
+       }
+
+       Promise.resolve().then(()=>{
+           console.log(7)
+       })
+
+       setTimeout(()=>{
+           console.log(8)
+       })
+
+    //    async1()
+    //    console.log(9)
+
+       /*
+        执行栈：
+        宏任务：log(8)
+        微任务： 1. ()=>{log(7)}
+                2. then((result)=>{
+                        console.log(result)
+                        console.log(3)
+                        const result2 = await async3()
+                        console.log(result2)
+                        const result3 = await async4()
+                        console.log(result3)
+                        console.log(66)
+                    })
+
+                
+       */
+        
+       // 结果： 1 2 9 7 unfined 3 44 55 66 8
+       
+       // 1. wait后面如果不是promise那么默认会把后面的代码放在promise中执行，有返回结果就放在resole中，
+       //    没有返回结果就默认返回undefined并且把undefined放在resole中。
+       // 2. 如果await后面有promise，那么它就会等到promise中的成功或者失败状态执行完毕才会继续往下执行，
+       //    不管是在其他异步回调函数中，都要等到成功或者失败执行完毕，如果await后面有promise但是没有成
+       //    功或者失败的状态，那么就一直处于promise内部中，不会再继续往下执行
+       // (如果await后面有非promise异步，并且promise的reject和resolve没有放在这个异步回调中，那么await
+       // 不会等到这个异步执行完才执行后面的)
+
+       function pro1(){  //Promise函数
+           return new Promise((resolve,rej)=>{
+                console.log(1111)
+               setTimeout(()=>{
+                   console.log("不会等到这个执行完毕才往下执行")
+               },3000)
+               function aaa(){
+                    throw new Error('错') // 这里抛出 被promise rej捕获，所以下面的rej不再执行
+                    rej('err');
+               }
+               aaa()
+           })
+       }
+       function fn2() {   //普通函数
+            setTimeout(()=>{  //不会等待这个执行完毕
+                console.log("普通函数执行完毕")
+            },2000)
+            console.log("普通函数外部执行完毕")
+       }
+        async  function wait2(){
+           await pro1().then(()=>{},err=>{console.log(err)})
+           await fn2() //相当于 new Promise((res)=>{ 
+                        //         setTimeout(()=>{  
+                        //             console.log("普通函数执行完毕")
+                        //         },2000)
+                        //         console.log("普通函数外部执行完毕")
+                        //         res(undefined)
+                        // })
+           console.log("最后")
+       }
+       //wait2() 
+       //console.log(8888)//1111 8888 错 普通函数外部执行完毕  最后 普通函数执行完毕 不会等到这个执行完毕才往下执行
+
+       /*
+        解析：
+           1. wait2() 执行
+           2. pro1() 执行
+           3. log(1111) 执行
+           4. log("不会等到这个执行完毕才往下执行") 推入宏任务
+           5. aaa() 执行
+           6. rej('错') //推入微任务
+           7. log(8888) 执行
+           8. 清空微任务 rej('错')执行
+           9. log(err)输出
+           10. fn2() 执行
+           11. log("普通函数执行完毕") 推入宏任务
+           12. log("普通函数外部执行完毕")  执行
+           13. res(undefined) //推入微任务
+           14. 清空微任务 res(undefined)执行
+           15. log("最后")
+           16. 全部执行完毕，清空宏任务
+           17. 2秒到了执行 log("普通函数执行完毕") 执行
+           18. 3秒到了执行 log("不会等到这个执行完毕才往下执行")
+
+           执行栈：log(1111) log(8888)
+           宏任务：log("不会等到这个执行完毕才往下执行") log("普通函数执行完毕")
+           微任务：rej('错')
+           输出： 1111 8888 '错' 普通函数外部执行完毕 最后 普通函数执行完毕 不会等到这个执行完毕才往下执行
+       */
+
+       function pro(){  //Promise函数
+           return new Promise((resolve,rej)=>{
+                // throw new Error('错') // 非异步回调中是可以被rej捕获到，并且后面的rej不再执行
+                // rej('err'); // 不再执行
+                setTimeout(()=>{
+                    console.log("Promise执行完毕")
+                    throw new Error('错') // 异步回调中抛出错，promise的reject是捕获不到的，直接报错
+                    rej('err'); 
+                },3000)
+                // function aaa(){
+                //     throw new Error('错') // 这里抛出 被promise rej捕获，所以下面的rej不再执行
+                //     rej('err'); // 不再执行
+                // }
+                // aaa()
+           })
+       }
+
+       function fn() {   //普通函数
+               setTimeout(()=>{  //不会等待这个执行完毕
+                   console.log("普通函数执行完毕")
+               },2000)
+               console.log("普通函数外部执行完毕")
+       }
+        async  function wait(){
+           await pro().then(()=>{},err=>{console.log(err)})
+           //await pro().then(()=>{},err=>{console.log(err)})
+           await fn()
+           console.log("最后")
+       }
+       // wait() // 直接报错不再往下执行
+
+       // await后面的promise中没有执行成功或者失败就一直处于promise中
+       function pro3(){  //Promise函数
+           return new Promise((resolve,rej)=>{ //内部没有resolve,rej的执行，那么一直处于Promise中
+                setTimeout(()=>{
+                    console.log("Promise执行完毕")
+                    //rej('err'); 
+                },3000)
+           })
+       }
+
+       function fn3() {   //普通函数
+               setTimeout(()=>{  
+                   console.log("普通函数执行完毕") // 不会被执行
+               },2000)
+               console.log("普通函数外部执行完毕") // 不会被执行
+       }
+
+       async  function wait3(){
+           await pro3().then(()=>{console.log('成功')},err=>{console.log(err)})
+           //await pro().then(()=>{},err=>{console.log(err)})
+           await fn3()
+           console.log("最后")
+       }
+       //wait3() 
+       //console.log('666') //666  Promise执行完毕
+
+       // 1.await后面的promise抛出了错，但是紧接着后面没有执行Catch或者失败的回调，那么
+       //   后面的就不再继续往下执行
+       // 2.如果后面不想紧接着写错误回调，并且还想继续往下执行那么就可以使用try catch捕获
+        function proError(){
+           return Promise.reject("error1");
+        }
+
+        function proError2(){
+        //    return Promise.reject("error2");
+            return new Promise((res)=>{
+                res()
+            })
+        }
+
+        function proError3(){
+           return Promise.reject("error3");
+        }
+
+        async  function wait4(){
+            // try{ 
+                // 紧接着执行了失败回调，后面的console还会继续执行
+                // try {
+                //     await proError()
+                // } catch (error) {
+                //     console.log(error);
+                // }
+                // try {
+                //     await proError2()
+                // } catch (error) {
+                //     console.log(error);
+                // }
+                // try {
+                //     await proError3()
+                // } catch (error) {
+                //     console.log(error);
+                // }
+                
+                await proError().then(()=>{},err=>{console.log(err)}) 
+                await proError2() // 紧接着没有报错错误就不再执行后面的
+                await proError3().then(()=>{},err=>{console.log(err)}) 
+            // }catch{
+            // }
+            console.log("最后")
+        }
+       
+        // wait4().catch(e=>{ 
+        //     console.log(e);  //没有使用try就显示"error" ，否则就是最后
+        // }); //  error1 error2
+
+        function pro5(){
+            return new Promise((resolve,rej)=>{
+                setTimeout(()=>{
+                    resolve('成功'); 
+                },3000)
+           })
+        }
+
+        // await前面有接收值，那就是直接把后面promise中成功的值赋值过去
+        function proError5(){
+           return Promise.reject("error2");
+        }
+        function por55(){
+           console.log('啥也不返回')
+        }
+
+        async  function wait5(){
+            let a55 = await por55()
+            console.log(a55) // undefined
+            let a5 = await pro5()
+            console.log(a5) // 成功
+            let a6 = await proError5().then(()=>{},err=>{console.log(err); return 'err'})  // error2
+            console.log(a6) // undefined
+            console.log("最后") // 最后
+        }
+       
+        wait5().catch(e=>{ 
+            console.log(e);
+        });
+
+        function gen1(){
+            return new Promise((resolve,rej)=>{
+                console.log(1)
+                setTimeout(()=>{
+                    console.log('成功')
+                    resolve('成功'); 
+                },3000)
+           })
+        }
+        function * read(){
+            console.log(2)
+            let val1 = yield  gen1()
+            console.log(3)
+            console.log(val1)
+            let val2 = yield console.log(22)
+            console.log(val2)
+        }
+        Promise.resolve().then(()=>{
+            console.log(4)
+        })
+        // let red = read()
+        // red.next()
+        // red.next()
+        // console.log(5)
+
+
+        
+    </script>
+</body>
+</html>

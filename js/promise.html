@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+        promise
+         
+         解决的问题：
+            1. 解决回调地狱
+            2. 解决回调不统一不规范的一种具体实现
+
+         1. 异步模型规范
+            两个阶段和三种状态
+
+         两个阶段：
+            1. 未决(unsettled)
+                从开始执行到拿到结果的过程就是未决,(同步执行的)
+
+            2. 已决(settled)
+                拿到结果之后(异步微任务)
+
+         三种状态
+            1. padding(挂起)
+
+            2. resolved(成功)
+               
+            3. rejected(失败)
+
+         两种结果的处理
+            1. resolved(成功)结果的后续处理称为thenable
+            2. rejectd(失败)结果的后续处理称为catchable
+            
+
+        阶段和状态的关系：
+
+            1. 当任务处于未决阶段时，它一定是挂起的状态padding(挂起)
+            2. 当任务处于已决阶段时，它一定是成功或者失败状态中的一种
+
+            1. 从未决推向已决的resolved(成功)状态的过程称为resolve
+            2. 从未决推向已决的rejected(失败)状态的过程称为reject
+
+        注意：
+           1. promise函数本身执行是同步的，只是它里面的两种状态的回调是异步的
+           2. 两种状态只能执行其中的一种，要不成功要不失败。
+       */
+        setTimeout(()=>{
+            console.log(1)
+        },0)
+        const pro = new Promise((res,rej)=>{
+            console.log(2)
+            res(3)  // resolve先执行 后面就不再执行Reject因为已决阶段只有一种状态
+            console.log(4)
+            rej(5)  // 不在执行
+            console.log(6)
+        })
+
+        pro.then(data=>{
+            console.log(data)
+        }).catch(err=>{
+            console.log(err)
+        })
+
+        setTimeout(()=>{
+            console.log(7)
+        },0)
+
+        console.log(8)
+
+        /*
+          执行栈:         全局执行环境
+          宏任务：log(1) log(7)
+          微任务：res(3)
+           
+          结果： 2 4 6 8 3 1 7
+        */
+
+        /*
+            实现promise
+            1. 初始三种状态 padding  resolve reject,传入一个fn函数
+            2. 初始一个存储成功或者失败的结果
+            3. 初始一个存储then中成功的回调函数的数组
+            4. 初始一个存储then中失败的回调函数的数组
+            5. 实现两个函数 resolve 和 reject
+            6. resolve中当状态为padding时就改为resolve 并且遍历执行存储成功的回调函数
+            7. reject中当前状态为padding时就改为reject 并且遍历执行存储失败的回调函数
+            8. 执行传入的fn，传入resolve和Reject两个函数，并且用try catch捕获下
+
+            9. 实现then
+            10. 传入两个函数 resolve 和reject
+            11. 如果没有传入函数就初始这两个函数
+            12. 判断状态如果为padding那么就把这两个函数分别push到 存储成功的回调函数的数组中   
+            13. 状态如果为resolve那么就执行resolve函数传入存储成功或失败的结果
+            14. 状态如果为reject那么就执行reject函数传入存储成功或失败的结果
+        */
+
+        function MyPromise(fn){
+            this.status = 'padding'
+            this.value = ''
+            this.resolveFn = []
+            this.rejectFn = []
+            const _self = this
+
+            function resolve(val){
+                if(_self.status === 'padding'){
+                    _self.status = 'resolve'
+                    _self.value = val
+                    _self.resolveFn.map(item=>{
+                        item(val)
+                    })
+                }
+            }
+            function reject(val){
+                if(_self.status === 'padding'){
+                    _self.status = 'reject'
+                    _self.value = val
+                    _self.rejectFn.map(item=>{
+                        item(val)
+                    })
+                }
+            }
+            try{
+                fn(resolve,reject)
+            }catch(e){
+                reject(e)
+            }
+        }
+
+        MyPromise.prototype.then = function(res,rej){
+            typeof res === 'function' ? '' : res = (val)=>val
+            typeof rej === 'function' ? '' : rej = (err)=>{ }
+            
+            return new MyPromise((res2,rej2)=>{
+                const _self = this
+                if(this.status === 'padding'){
+                    try {
+                        res && this.resolveFn.push(function(){
+                            const val = res(_self.value)
+                            result(val,res2,rej2)
+                        })
+                        rej && this.rejectFn.push(function(){
+                            const val = rej(_self.value)
+                            result(val,res2,rej2)
+                        })
+                    } catch (error) {
+                        const val = rej(error)
+                        result(val,res2,rej2)   
+                    }
+                }else if(this.status === 'resolve'){
+                    try {
+                        const val = res(_self.value)
+                        result(val,res2,rej2)
+                    } catch (error) {
+                        const val = rej(error)
+                        result(val,res2,rej2)
+                    }
+                
+                }else if(this.status === 'reject'){
+                    try {
+                        const val = rej(_self.value)
+                        result(val,res2,rej2)    
+                    } catch (error) {
+                        const val = rej(error)
+                        result(val,res2,rej2) 
+                    }
+                }
+            })
+        }
+        
+        // 实现链式调用
+        function result(obj,res,rej){
+            if(obj instanceof MyPromise){
+                obj.then((val)=>{
+                    res(val)
+                },(err)=>{
+                    rej(err)
+                })
+            }else{
+                res(obj)
+            }
+        }
+
+        // all的实现
+        MyPromise.all = function(arr){
+            let result = []
+            return new MyPromise((ressolve,reject)=>{
+                    arr.map(item=>{
+                        item().then((res,index)=>{
+                            result.push(res)
+                            if(arr.length - 1 === index){
+                                ressolve(result)
+                            }
+                        },(err)=>{
+                            reject(err)
+                        })
+                    })
+            })
+        }
+
+        const myPro = new MyPromise((res,rej)=>{
+            setTimeout(()=>{
+                res('成功')
+            },100)
+        })
+
+        myPro.then((res)=>{
+            console.log(res)
+            return 666
+        }).then((res)=>{
+            console.log(res)
+            return new MyPromise((res,rej)=>{
+                rej('失败')
+            })
+        }).then((res)=>{
+            console.log(res)
+        },(err)=>{
+            console.log(err)
+        })
+
+    </script>
+</body>
+</html>

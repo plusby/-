@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    如何实现网页加载进度条？
+    1 . 通过window.performance对象来监听所有资源的加载
+    2. 通过performance.getEntriesByType('resource')方法获取到所有的资源
+    3. 遍历这些资源，在每个资源的load中判断是否加载完成，在和总资源数进行比例处理得出加载进度
+
+  </div>
+  <script>
+    // 获取当前页面的所有资源
+    const resources = window.performance.getEntriesByType('resource')
+    // 保存资源的总数
+    const len = resources.length
+    // 当前加载完成的资源
+    let count = 0
+    // 遍历所有资源
+    resources.forEach(item => {
+      // 判断是否是ajax请求
+      if (item.initiatorType !== 'xmlhttpRequest') {
+        // 判断资源加载完成
+        item.onload = () => {
+          count++
+          // 计算进度
+          const process = Math.round((count / len) * 100)
+        }
+      }
+    })
+  </script>
+</body>
+</html>

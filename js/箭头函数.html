@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        /*
+            箭头函数
+
+            1. 箭头函数中没有this，它里面使用的this是它外层的非箭头函数中的this
+
+            2. 箭头函数不能作为构造函数使用，因此它不能使用new调用，不能使用super
+               也没有prototype属性
+
+            3. 箭头函数中没有arguments,可以使用Reset来使用参数集合
+        
+        */
+
+        function test(count){
+            for(let i = 0; i<count; i++){
+                for(let j = 0; j<count; j++){
+                    if((i * 5 + j * 6) == count){
+                        return {
+                           '小船': i,
+                           '大船': j
+                        }    
+                    }
+                }
+            }
+        }
+        let val = test(63)
+        console.log(val)
+    </script>
+</body>
+</html>
