@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>SourceMap bug定位工具</title>
+  <script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.js"></script>
+  <script src="https://unpkg.com/source-map@0.7.3/dist/source-map.js"></script>
+  <style>
+    pre {
+      padding: 10px;
+      overflow: hidden;
+      font-family: consolas, monospace;
+      background-color: #f7f7f7;
+      word-wrap: normal;
+    }
+
+    input[name="line-column"] {
+      height: 30px;
+      font-size: 14px;
+      line-height: 1.42857143;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button[name="submit"] {
+      height: 30px;
+      color: #fff;
+      background-color: #409eff;
+      border-color: #409eff;
+      outline: 0;
+      border-radius: 4px;
+      border: 0;
+      cursor: pointer;
+      margin-bottom: 20px;
+      width: 80px;
+    }
+
+    .errdetail {
+      margin-top: 10px;
+      background-color: #fff;
+    }
+
+    .errheader {
+      padding: 10px;
+      border-bottom: 1px solid #d6d2d2;
+    }
+
+    .code-line {
+      padding: 4px;
+    }
+
+    .code-line.heightlight {
+      color: #fff;
+      background-color: red;
+    }
+  </style>
+  <script>
+    sourceMap.SourceMapConsumer.initialize({
+      "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm",
+    });
+  </script>
+</head>
+
+<body>
+  <form id="myForm">
+    <p>
+      <label for="line-column">line:column </label><input id="line-column" name="line-column" />
+    </p>
+    <p>
+      <label for="sourceMapFile">sourceMapFile </label><input id="sourceMapFile" type="file" name="sourceMapFile" />
+    </p>
+    <button type="submit" name="submit">确定</button>
+  </form>
+  <table id="result" border="1" cellspacing="0" cellpadding="10">
+    <tr>
+      <th>line:column</th>
+      <th>==></th>
+      <th>source</th>
+      <th>line</th>
+      <th>column</th>
+      <th>name</th>
+    </tr>
+  </table>
+  <div id="errdetail">
+    <div id="errHeader"></div>
+    <pre id="errCode"></pre>
+  </div>
+  <script>
+    function fixPath(filepath) {
+      return filepath.replace(/\.[\.\/]+/g, "");
+    }
+
+    function encodeHTML(str) {
+      if (!str || str.length == 0) return "";
+      return str.replace(/&/g, "&#38;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\'/g, "&#39;");
+    }
+
+    function lookupSourceMap(rawSourceMap, line, column, callback) {
+      let sourcesPathMap = {};
+      let fileContent = rawSourceMap.toString(),
+          fileObj = JSON.parse(fileContent),
+          sources = fileObj.sources;
+          sources.map(item => {
+            sourcesPathMap[fixPath(item)] = item;
+          });
+      let lookup = {
+        source: "./",
+        line: parseInt(line),
+        column: parseInt(column)
+      };
+      sourceMap.SourceMapConsumer.with(rawSourceMap, null, consumer => {
+        const result = consumer.originalPositionFor(lookup);
+        const originSource = sourcesPathMap[result.source],
+          sourcesContent = fileObj.sourcesContent[sources.indexOf(originSource)];
+          result.sourcesContent = sourcesContent;
+          callback && callback(result)
+        })
+    }
+
+    function showErrorContent(result) {
+      var $errCode = document.getElementById('errCode');
+      var lines = result.sourcesContent.split('\n');
+      var row = result.line,
+        len = lines.length - 1;
+      var start = row - 5 >= 0 ? row - 5 : 0,
+        end = start + 9 >= len ? len : start + 9;
+      var newLines = [];
+      for (var i = start; i <= end; i++) {
+        newLines.push('<div class="code-line ' + (i + 1 == row ? 'heightlight' : '') + '" title="' + (i + 1 == row ?
+          encodeHTML(result.msg) : '') + '">' + (i + 1) + '.    ' + encodeHTML(lines[i]) + '</div>');
+      }
+      $errCode.innerHTML += '<div class="errdetail"><div class="errheader">' + result.source + ' at line ' + result
+        .line + ':' + result.column + '</div>' + '<pre class="errCode">' + newLines.join("") + '</pre></div>';
+      $('#result').append($(
+        `           <tr>               <td>${result.line}:${result.column}</td><td> ==> </td><td>${result.source}</td><td>${result.line}</td><td>${result.column}</td><td>${result.name}</td>           </tr>       `
+      ));
+    }
+    $(function () {
+      const form = $('#myForm');
+      form.on('submit', function (e) {
+        debugger
+        e.preventDefault();
+        const dataArray = form.serializeArray();
+        const dataObj = dataArray.reduce((obj, item) => (obj[item.name] = item.value, obj), {}) 
+        let [line,
+          column
+        ] = dataObj['line-column'].split(':');
+        let file = $('#sourceMapFile').get(0).files[0];
+        const fileReader = new FileReader();
+        fileReader.onloadend = function () {
+          const rawSourceMap = fileReader.result;
+          lookupSourceMap(rawSourceMap, line, column, (result) => {
+            showErrorContent(result)
+          })
+        };
+        fileReader.readAsText(file);
+        return false;
+      });
+    });
+  </script>
+</body>
+
+</html>

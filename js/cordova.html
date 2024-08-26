@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    1. 如何本地加载url对应的资源
+    2. webview如何使用js调用app原生api（JSBridge）
+    3. app原生api如何回调webview中的js
+    4. 多个plugin的情况下，cordova是如何通过cordova.exec(...’pluginName’...)定位到相应的plugin的
+
+    1. 如何本地加载url对应的资源
+      - 可以暴露webpapck的配置，通过修改输出路径，打包之后的文件打包到www文件夹中；
+      - 可以上传到服务器上，通过动态的下载，放在wwww文件夹中，通过file协议直接打开html文件
+
+    2. webview如何使用js调用app原生api(JSBridge)
+      - 通过addJavascriptInterface方法
+      - 通过执行alert.confirm或prompt方法，webview也会执行这三个方法
+
+    3. app原生api如何回调webview中的js
+      webview中会生成对应的回调id,app通过id获取到对应的回调函数执行
+
+    4. 多个plugin的情况下，cordova是如何通过cordova.exec(...’pluginName’...)定位到相应的plugin的
+    
+
+    
+  </pre>
+</body>
+</html>
